@@ -15,11 +15,11 @@ import pkg_resources
 from deepmerge import conservative_merger
 from tornado import ioloop, httpserver
 
-from . import commands
-from . import argparse
-from . import __version__
-from . import server
-from . import utils
+import commands
+import argparse
+from __init__ import __version__
+import server
+import utils
 
 
 #-----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ def enable_debugging():
 def parseconfig(cfg):
     import yaml
 
-    raw_config = yaml.load(cfg)
+    raw_config = yaml.load(cfg, Loader=yaml.FullLoader)
 
     port, addr = utils.parseaddr(raw_config.get('bind', 'localhost:8080'))
     config = {
@@ -252,8 +252,8 @@ def start_server(application, config, client_config):
 
     log.debug('Config:\n%s', pprint.pformat(config))
     log.debug('Client config:\n%s', pprint.pformat(client_config))
-    if 'files' in config:
-        log.debug('Files:\n%s',  pprint.pformat(dict(config['files'])))
+    if 'files' in config.keys():
+        log.info('Files:\n%s',  pprint.pformat(dict(config['files'])))
 
     loop = ioloop.IOLoop.instance()
     msg = 'Listening on %s:%s' % (config['addr'], config['port'])

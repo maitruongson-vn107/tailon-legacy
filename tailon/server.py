@@ -9,7 +9,7 @@ import sockjs.tornado
 from tornado import web, ioloop, process, escape
 from tornado_http_auth import BasicAuthMixin, DigestAuthMixin
 
-from . import utils
+import utils
 
 
 STREAM = process.Subprocess.STREAM
@@ -80,6 +80,7 @@ class Fetch(BaseHandler, web.StaticFileHandler):
             raise web.HTTPError(403, 'transfers not allowed')
 
         if not self.application.file_lister.is_path_allowed(absolute_path):
+            
             raise web.HTTPError(404)
 
         absolute_path = super(Fetch, self).validate_absolute_path(root, absolute_path)

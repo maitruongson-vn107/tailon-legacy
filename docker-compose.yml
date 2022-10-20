@@ -1,0 +1,10 @@
+version: '3'
+services:
+  tailon:
+    image: sonmt/tailon:latest
+    container_name: sonmt-tailon
+    ports:
+      - "80:80"
+    volumes:
+      - /Users/sonmt/kafka_2.13-2.7.0/logs:/logs
+      - ~/tailon-legacy/config/config.yml:/home/tailon/config/config.yml

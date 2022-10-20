@@ -2,7 +2,7 @@
 
 import logging
 import subprocess
-from . import compat
+import compat
 
 from tornado import process
 

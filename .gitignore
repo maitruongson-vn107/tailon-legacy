@@ -52,3 +52,5 @@ nosetests.xml
 .pydevproject
 
 \#*\#
+
+*.code-workspace
