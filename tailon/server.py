@@ -4,6 +4,7 @@ import os
 import logging
 from functools import partial
 from datetime import datetime
+from symbol import pass_stmt
 
 import sockjs.tornado
 from tornado import web, ioloop, process, escape
@@ -11,23 +12,33 @@ from tornado_http_auth import BasicAuthMixin, DigestAuthMixin
 
 import utils
 
-
 STREAM = process.Subprocess.STREAM
 log = logging.getLogger('tailon')
 io_loop = ioloop.IOLoop.instance()
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class BaseHandler(web.RequestHandler):
     def __init__(self, *args, **kw):
         super(BaseHandler, self).__init__(*args, **kw)
         self.config = self.application.config
         self.client_config = self.application.client_config
 
+    def de_tokenize(self, token):
+        # TODO: De-tokenize code
+        username, password = ('', '')
+        return username, password
+
     # Will be aliased to prepare() if authentication is enabled (see setup_routes()).
     def _prepare(self):
-        self.get_authenticated_user(self.config['users'].get, realm='Protected')
-
+        auth = self.request.headers.get('Authorization')
+        if not auth or (auth and auth.split(' ')[0] != 'Bearer'):
+            self.get_authenticated_user(self.config['users'].get, realm='Protected')
+        else:
+            token = auth.split(' ')[1]
+            username, password = self.de_tokenize(token)
+            if self.config['users'][username] != password:
+                self.get_authenticated_user(self.config['users'].get, realm='Protected')
 
 class Index(BaseHandler):
     def initialize(self, template):
@@ -80,7 +91,6 @@ class Fetch(BaseHandler, web.StaticFileHandler):
             raise web.HTTPError(403, 'transfers not allowed')
 
         if not self.application.file_lister.is_path_allowed(absolute_path):
-            
             raise web.HTTPError(404)
 
         absolute_path = super(Fetch, self).validate_absolute_path(root, absolute_path)
@@ -269,7 +279,7 @@ class BaseApplication(web.Application):
         super(BaseApplication, self).__init__(routes, **settings)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class TailonApplication(BaseApplication):
     def __init__(self, *args, **kw):
         self.file_lister = kw.pop('file_lister')
@@ -277,7 +287,7 @@ class TailonApplication(BaseApplication):
         super(TailonApplication, self).__init__(*args, **kw)
 
     def enable_authentication(self, auth_type):
-        mixin = {'digest':  DigestAuthMixin, 'basic': BasicAuthMixin}[auth_type]
+        mixin = {'digest': DigestAuthMixin, 'basic': BasicAuthMixin}[auth_type]
         BaseHandler.__bases__ = (web.RequestHandler, mixin)
         BaseHandler.prepare = BaseHandler._prepare
 

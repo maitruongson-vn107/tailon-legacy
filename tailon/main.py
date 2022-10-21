@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8; -*-
 
-from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import print_function
 
-import os, sys
-import glob
-import pprint
-import logging
-import textwrap
+import argparse
 import collections
-import pkg_resources
+import glob
+import logging
+import os
+import pprint
+import sys
+import textwrap
 
+import pkg_resources
 from deepmerge import conservative_merger
 from tornado import ioloop, httpserver
 
 import commands
-import argparse
-from __init__ import __version__
 import server
 import utils
-
+from __init__ import __version__
 
 #-----------------------------------------------------------------------------
 # Setup Logging
@@ -48,13 +48,14 @@ applog.addHandler(ch)
 applog.setLevel(logging.WARN)
 applog.propagate = 0
 
+
 def enable_debugging():
     log.setLevel(logging.DEBUG)
     applog.setLevel(logging.DEBUG)
     weblog.setLevel(logging.DEBUG)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def parseconfig(cfg):
     import yaml
 
@@ -111,9 +112,9 @@ def parseconfig(cfg):
     return config
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Option parsing
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 def parseopts(args=None):
     description = '''
     Tailon is a web app for looking at and searching through log files.
