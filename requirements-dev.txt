@@ -14,5 +14,5 @@ bumpversion >= 0.5.3
 deepmerge
 tornado == 4.5.3
 tornado-http-auth
-sockjs >= 0.
+sockjs==0.11.0
 sockjs-tornado
